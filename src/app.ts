@@ -8,7 +8,7 @@ import cors from 'cors'
 import thumbnailRoute from "./routes/thumbnailRoute";
 
 const app = express();
-const port = process.env.PORT || 3100;
+const port = process.env.PORT || 3200;
 
 app.use(cors())
 
