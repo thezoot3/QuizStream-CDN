@@ -59,7 +59,7 @@ async function extractThumbnail(videoPath: string, thumbnailPath: string): Promi
             .on('error', reject)
             .screenshots({
                 count: 1,
-                timestamps: ['1'],
+                timestamps: ['0'],
                 folder: path.dirname(thumbnailPath),
                 filename: path.basename(thumbnailPath)
             })
