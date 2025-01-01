@@ -41,8 +41,9 @@ router.post('/', upload.single('video'), async (req, res) => {
     console.log(`File size: ${fileSizeInMegabytes.toFixed(2)} MB`);
 
     try {
-        const totalDuration = (Date.now() - req.body.uploadStartTime) / 1000;
+
         const videoInfo = await saveVideoInfo(req.file);
+        const totalDuration = (Date.now() - req.body.uploadStartTime) / 1000;
         res.json({
             ...videoInfo,
             fileSize: `${fileSizeInMegabytes.toFixed(2)} MB`,
