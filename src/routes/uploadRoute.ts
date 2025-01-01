@@ -41,18 +41,8 @@ router.post('/', upload.single('video'), async (req, res) => {
     console.log(`File uploaded successfully: ${req.file.originalname}`);
     console.log(`File size: ${fileSizeInMegabytes.toFixed(2)} MB`);
     console.log(`Upload duration: ${uploadDuration.toFixed(2)} seconds`);
-
-    try {
-        const videoInfo = await saveVideoInfo(req.file);
-        res.json({
-            ...videoInfo,
-            fileSize: `${fileSizeInMegabytes.toFixed(2)} MB`,
-            uploadDuration: `${uploadDuration.toFixed(2)} seconds`
-        });
-    } catch (error) {
-        console.error('Error processing video:', error);
-        res.status(500).send('Error processing video.');
-    }
+    res.send('File uploaded successfully');
+    await saveVideoInfo(req.file);
 });
 
 
