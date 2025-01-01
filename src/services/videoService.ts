@@ -17,18 +17,21 @@ const videoInfoCache = new NodeCache();
 
 export async function saveVideoInfo(file: Express.Multer.File): Promise<VideoInfo> {
     const filePath = path.join(__dirname, '../../uploads', file.filename);
-    const duration = await getVideoDurationInSeconds(filePath);
-    const videoId = file.filename.split(".")[0]
+    const videoId = file.filename.split(".")[0];
+
+    // 병렬로 실행
+    const [duration, _] = await Promise.all([
+        getVideoDurationInSeconds(filePath),
+        extractThumbnail(filePath, path.join(thumbnailsDir, `${videoId}.jpg`))
+    ]);
+
     const videoInfo: VideoInfo = {
         filename: file.filename,
         duration: Math.round(duration),
-        videoId: videoId
+        videoId
     };
 
-    await extractThumbnail(filePath, path.join(thumbnailsDir, `${file.filename.split('.')[0]}.jpg`));
-
     videoInfoCache.set(file.filename, videoInfo);
-
     return videoInfo;
 }
 
@@ -63,6 +66,7 @@ async function extractThumbnail(videoPath: string, thumbnailPath: string): Promi
                 folder: path.dirname(thumbnailPath),
                 filename: path.basename(thumbnailPath)
             })
+            .outputOptions(['-quality: 50']);
     });
 }
 
