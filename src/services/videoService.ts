@@ -17,21 +17,18 @@ const videoInfoCache = new NodeCache();
 
 export async function saveVideoInfo(file: Express.Multer.File): Promise<VideoInfo> {
     const filePath = path.join(__dirname, '../../uploads', file.filename);
-    const videoId = file.filename.split(".")[0];
-
-    // 병렬로 실행
-    const [duration, _] = await Promise.all([
-        getVideoDurationInSeconds(filePath),
-        extractThumbnail(filePath, path.join(thumbnailsDir, `${videoId}.jpg`))
-    ]);
-
+    const duration = await getVideoDurationInSeconds(filePath);
+    const videoId = file.filename.split(".")[0]
     const videoInfo: VideoInfo = {
         filename: file.filename,
         duration: Math.round(duration),
-        videoId
+        videoId: videoId
     };
 
+    await extractThumbnail(filePath, path.join(thumbnailsDir, `${file.filename.split('.')[0]}.jpg`));
+
     videoInfoCache.set(file.filename, videoInfo);
+
     return videoInfo;
 }
 
@@ -56,14 +53,9 @@ export async function getVideoInfo(filename: string): Promise<VideoInfo> {
 }
 
 async function extractThumbnail(videoPath: string, thumbnailPath: string): Promise<void> {
-    const startTime = Date.now();
     return new Promise((resolve, reject) => {
         ffmpeg(videoPath)
-            .on('end', () => {
-                const endTime = Date.now();
-                console.log(`extractThumbnail 실행 시간: ${endTime - startTime}ms`);
-                resolve();
-            })
+            .on('end', () => resolve())
             .on('error', reject)
             .screenshots({
                 count: 1,
@@ -71,8 +63,8 @@ async function extractThumbnail(videoPath: string, thumbnailPath: string): Promi
                 folder: path.dirname(thumbnailPath),
                 filename: path.basename(thumbnailPath)
             })
-            .outputOptions(['-quality: 50'])
-    })
+    });
 }
+
 //get thumbnail image
 

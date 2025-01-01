@@ -31,6 +31,7 @@ router.post('/', upload.single('video'), async (req, res) => {
     }
 
     const uploadEndTime = Date.now();
+    const uploadDuration = (uploadEndTime - req.body.uploadStartTime) / 1000; // 초 단위로 변환
 
     // 파일 크기 확인
     const stats = fs.statSync(req.file.path);
@@ -39,15 +40,14 @@ router.post('/', upload.single('video'), async (req, res) => {
 
     console.log(`File uploaded successfully: ${req.file.originalname}`);
     console.log(`File size: ${fileSizeInMegabytes.toFixed(2)} MB`);
+    console.log(`Upload duration: ${uploadDuration.toFixed(2)} seconds`);
 
     try {
-
         const videoInfo = await saveVideoInfo(req.file);
-        const totalDuration = (Date.now() - req.body.uploadStartTime) / 1000;
         res.json({
             ...videoInfo,
             fileSize: `${fileSizeInMegabytes.toFixed(2)} MB`,
-            uploadDuration: `${totalDuration.toFixed(2)} seconds`
+            uploadDuration: `${uploadDuration.toFixed(2)} seconds`
         });
     } catch (error) {
         console.error('Error processing video:', error);
