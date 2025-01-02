@@ -52,7 +52,7 @@ export async function getVideoInfo(filename: string): Promise<VideoInfo> {
     return videoInfo;
 }
 
-async function extractThumbnail(videoPath: string, thumbnailPath: string): Promise<void> {
+export async function extractThumbnail(videoPath: string, thumbnailPath: string): Promise<void> {
     return new Promise((resolve, reject) => {
         ffmpeg(videoPath)
             .on('end', () => resolve())
