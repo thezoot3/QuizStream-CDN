@@ -11,7 +11,30 @@ const storage = multer.diskStorage({
         cb(null, 'uploads/');
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname));
+        const uniqueSuffix = '';
+        fs.access(`uploads/${file.originalname}`, fs.constants.F_OK, (err) => {
+            if (err) {
+                // 파일이 존재하지 않으면 원래 이름 그대로 사용
+                cb(null, file.originalname);
+            } else {
+                // 파일이 존재하면 파일명(1).확장자 형식으로 저장
+                const ext = path.extname(file.originalname);
+                const basename = path.basename(file.originalname, ext);
+                let counter = 1;
+                const checkFileName = () => {
+                    const newFileName = `${basename}(${counter})${ext}`;
+                    fs.access(`uploads/${newFileName}`, fs.constants.F_OK, (err) => {
+                        if (err) {
+                            cb(null, newFileName);
+                        } else {
+                            counter++;
+                            checkFileName();
+                        }
+                    });
+                };
+                checkFileName();
+            }
+        });
     }
 });
 
